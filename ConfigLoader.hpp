@@ -20,6 +20,8 @@ struct ConfigLoader {
     bool FEATURE_NORECOIL_ON = true;
     bool FEATURE_PRINT_LEVELS_ON = true;
     bool FEATURE_MAP_RADAR_ON = true;
+    bool FEATURE_BHOP_ON = false;  // Add this line
+    std::string BHOP_KEY = "XK_Space";  // Add this line
     
     //noRecoil    
     int NORECOIL_PITCH_REDUCTION = 15;
@@ -57,6 +59,9 @@ struct ConfigLoader {
         FEATURE_ITEM_GLOW_ON = (key.compare("FEATURE_ITEM_GLOW_ON") != 0) ? FEATURE_ITEM_GLOW_ON : toBool(val);
         FEATURE_TRIGGERBOT_ON = (key.compare("FEATURE_TRIGGERBOT_ON") != 0) ? FEATURE_TRIGGERBOT_ON : toBool(val);
         FEATURE_NORECOIL_ON = (key.compare("FEATURE_NORECOIL_ON") != 0) ? FEATURE_NORECOIL_ON : toBool(val);
+        // Bunny Hop
+        FEATURE_BHOP_ON = (key.compare("FEATURE_BHOP_ON") != 0) ? FEATURE_BHOP_ON : toBool(val); // Add this line
+        BHOP_KEY = (key.compare("BHOP_KEY") != 0) ? BHOP_KEY : trimConstructive(val); // Add this line
         //noRecoil        
         NORECOIL_PITCH_REDUCTION = (key.compare("NORECOIL_PITCH_REDUCTION") != 0) ? NORECOIL_PITCH_REDUCTION : stoi(val);
         NORECOIL_YAW_REDUCTION = (key.compare("NORECOIL_YAW_REDUCTION") != 0) ? NORECOIL_YAW_REDUCTION : stoi(val);
@@ -90,7 +95,7 @@ struct ConfigLoader {
         FEATURE_PRINT_LEVELS_BUTTON = (key.compare("FEATURE_PRINT_LEVELS_BUTTON") != 0) ? FEATURE_PRINT_LEVELS_BUTTON : trimConstructive(val);
         FEATURE_MAP_RADAR_ON = (key.compare("FEATURE_MAP_RADAR_ON") != 0) ? FEATURE_MAP_RADAR_ON : toBool(val); 
         FEATURE_MAP_RADAR_BUTTON = (key.compare("FEATURE_MAP_RADAR_BUTTON") != 0) ? FEATURE_MAP_RADAR_BUTTON : trimConstructive(val);
-        }
+    }
 
     void print() {
         printf("\n==================== NIKA SETTINGS LOADED ==========================\n");
@@ -101,176 +106,92 @@ struct ConfigLoader {
         printf("FEATURE_ITEM_GLOW_ON\t\t\t\t\t%s\n", FEATURE_ITEM_GLOW_ON ? "YES" : "NO");
         printf("FEATURE_TRIGGERBOT_ON\t\t\t\t\t%s\n\n", FEATURE_TRIGGERBOT_ON ? "YES" : "NO");
         printf("FEATURE_SPECTATOR_ON\t\t\t\t\t%s\n", FEATURE_SPECTATOR_ON ? "YES" : "NO");
-        printf("FEATURE_SUPER_GLIDE_ON\t\t\t\t\t%s\n", FEATURE_SUPER_GLIDE_ON ? "YES" : "NO");
-        printf("FEATURE_SKINCHANGER_ON\t\t\t\t\t%s\n", FEATURE_SKINCHANGER_ON ? "YES" : "NO");
         printf("FEATURE_QUICKTURN_ON\t\t\t\t\t%s\n", FEATURE_QUICKTURN_ON ? "YES" : "NO");
-        printf("FEATURE_QUICKTURN_BUTTON\t\t\t\t%s\n", FEATURE_QUICKTURN_BUTTON.c_str());
+        printf("FEATURE_SKINCHANGER_ON\t\t\t\t\t%s\n", FEATURE_SKINCHANGER_ON ? "YES" : "NO");
+        printf("FEATURE_SUPER_GLIDE_ON\t\t\t\t\t%s\n", FEATURE_SUPER_GLIDE_ON ? "YES" : "NO");
         printf("FEATURE_PRINT_LEVELS_ON\t\t\t\t\t%s\n", FEATURE_PRINT_LEVELS_ON ? "YES" : "NO");
-        printf("FEATURE_PRINT_LEVELS_BUTTON\t\t\t\t%s\n", FEATURE_PRINT_LEVELS_BUTTON.c_str());
-        printf("FEATURE_MAP_RADAR_ON\t\t\t\t\t%s\n", FEATURE_MAP_RADAR_ON ? "YES" : "NO");
-        printf("FEATURE_MAP_RADAR_BUTTON\t\t\t\t%s\n", FEATURE_MAP_RADAR_BUTTON.c_str());
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        //norecoil
+        printf("FEATURE_MAP_RADAR_ON\t\t\t\t\t%s\n\n", FEATURE_MAP_RADAR_ON ? "YES" : "NO");
+        printf("FEATURE_BHOP_ON\t\t\t\t\t%s\n", FEATURE_BHOP_ON ? "YES" : "NO");  // Add this line
+        printf("BHOP_KEY\t\t\t\t\t\t%s\n\n", BHOP_KEY.c_str());  // Add this line
+        //noRecoil
         printf("NORECOIL_PITCH_REDUCTION\t\t\t\t%d\n", NORECOIL_PITCH_REDUCTION);
-        printf("NORECOIL_YAW_REDUCTION\t\t\t\t\t%d\n", NORECOIL_YAW_REDUCTION);
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("NORECOIL_YAW_REDUCTION\t\t\t\t\t%d\n\n", NORECOIL_YAW_REDUCTION);
         //triggerBot
         printf("TRIGGERBOT_ZOOMED_RANGE\t\t\t\t\t%d\n", TRIGGERBOT_ZOOMED_RANGE);
         printf("TRIGGERBOT_HIPFIRE_RANGE\t\t\t\t%d\n", TRIGGERBOT_HIPFIRE_RANGE);
-        printf("TRIGGERBOT_PAUSE_BUTTON\t\t\t\t\t%s\n", TRIGGERBOT_PAUSE_BUTTON.c_str());
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        printf("TRIGGERBOT_PAUSE_BUTTON\t\t\t\t\t%s\n\n", TRIGGERBOT_PAUSE_BUTTON.c_str());
         //sense
-        printf("SENSE_MAXRANGE\t\t\t\t\t\t%d\n", SENSE_MAXRANGE);
-        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");        
+        printf("SENSE_MAXRANGE\t\t\t\t\t\t%d\n\n", SENSE_MAXRANGE);
         //aimbot
         printf("AIMBOT_ACTIVATED_BY_ATTACK\t\t\t\t%s\n", AIMBOT_ACTIVATED_BY_ATTACK ? "YES" : "NO");
         printf("AIMBOT_ACTIVATED_BY_ADS\t\t\t\t\t%s\n", AIMBOT_ACTIVATED_BY_ADS ? "YES" : "NO");
         printf("AIMBOT_ACTIVATED_BY_KEY\t\t\t\t\t%s\n", AIMBOT_ACTIVATED_BY_KEY ? "YES" : "NO");
         printf("AIMBOT_ACTIVATION_KEY\t\t\t\t\t%s\n", AIMBOT_ACTIVATION_KEY.c_str());
-        printf("AIMBOT_SMOOTH\t\t\t\t\t\t%.10f\n", AIMBOT_SMOOTH);
-        printf("AIMBOT_SPEED\t\t\t\t\t\t%.10f\n", AIMBOT_SPEED);
-        printf("AIMBOT_SMOOTH_EXTRA_BY_DISTANCE\t\t\t\t%.4f\n", AIMBOT_SMOOTH_EXTRA_BY_DISTANCE);
+        printf("AIMBOT_SMOOTH\t\t\t\t\t\t%.2f\n", AIMBOT_SMOOTH);
+        printf("AIMBOT_SPEED\t\t\t\t\t\t%.2f\n", AIMBOT_SPEED);
+        printf("AIMBOT_SMOOTH_EXTRA_BY_DISTANCE\t\t\t%.2f\n", AIMBOT_SMOOTH_EXTRA_BY_DISTANCE);
         printf("AIMBOT_FOV\t\t\t\t\t\t%.4f\n", AIMBOT_FOV);
         printf("AIMBOT_PREDICT_BULLETDROP\t\t\t\t%s\n", AIMBOT_PREDICT_BULLETDROP ? "YES" : "NO");
         printf("AIMBOT_PREDICT_MOVEMENT\t\t\t\t\t%s\n", AIMBOT_PREDICT_MOVEMENT ? "YES" : "NO");
         printf("AIMBOT_ALLOW_TARGET_SWITCH\t\t\t\t%s\n", AIMBOT_ALLOW_TARGET_SWITCH ? "YES" : "NO");
         printf("AIMBOT_MAX_DISTANCE\t\t\t\t\t%d\n", AIMBOT_MAX_DISTANCE);
         printf("AIMBOT_MIN_DISTANCE\t\t\t\t\t%d\n", AIMBOT_MIN_DISTANCE);
-
-        printf("=====================================================================\n\n");
-        
+        printf("FEATURE_QUICKTURN_BUTTON\t\t\t\t%s\n", FEATURE_QUICKTURN_BUTTON.c_str());
+        printf("FEATURE_PRINT_LEVELS_BUTTON\t\t\t\t%s\n", FEATURE_PRINT_LEVELS_BUTTON.c_str());
+        printf("FEATURE_MAP_RADAR_BUTTON\t\t\t\t%s\n\n", FEATURE_MAP_RADAR_BUTTON.c_str());
+        printf("====================================================================\n\n");
     }
+
     void reloadFile() {
-        if (loadFileIntoVector()) {
-            parseLines();
-            print(); 
-            printLogo();          
+        struct stat fileStats;
+        if (stat(FILE_NAME.c_str(), &fileStats) == 0) {
+            auto fileModTime = fileStats.st_mtime;
+            if (m_lastTimeFileEdited != fileModTime) {
+                m_lastTimeFileEdited = fileModTime;
+                readFile();
+            }
+        } else {
+            printf("[!] Failed to load config file: %s\n", FILE_NAME.c_str());
         }
-    }
-    void parseLines() {
-        for (int i = 0; i < lines->size(); i++) {
-            std::vector<std::string> lineParts = split(lines->at(i));
-            // line key
-            std::string key(lineParts.at(0));
-            trim(key);
-            if (key.empty()) throw "Cannot parse the config. Bad key";
-            // line value
-            std::string value(lineParts.at(1));
-            trim(value);
-            if (value.empty()) throw "Cannot parse the config. Bad value";
-            loadVariables(key, value);
-        }
-    }
-    void trim(std::string& s) {
-        ltrim(s);
-        rtrim(s);
-    }
-    void ltrim(std::string& s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch)
-            { return !std::isspace(ch); }));
-    }
-    void rtrim(std::string& s) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch)
-            { return !std::isspace(ch); })
-            .base(),
-            s.end());
-    }
-    bool loadFileIntoVector() {
-        struct stat result;
-        if (stat(FILE_NAME.c_str(), &result) == 0) {
-            long modTime = result.st_mtime;
-            bool fileNeedsReload = modTime > m_lastTimeFileEdited;
-            m_lastTimeFileEdited = modTime;
-            if (!fileNeedsReload) return false;
-        }
-        lines->clear();
-        std::string str;
-        std::ifstream myFile(FILE_NAME);
-        while (getline(myFile, str)) {
-            trim(str);
-            if (str.empty()) continue;
-            if (str.rfind("#", 0) == 0) continue;
-            lines->push_back(str);
-        }
-        myFile.close();
-        return true;
-    }
-    bool toBool(std::string str) {
-        if (toLowerCase(str) == "y") return true;
-        if (toLowerCase(str) == "n") return false;
-        if (toLowerCase(str) == "yes") return true;
-        if (toLowerCase(str) == "no") return false;
-        if (toLowerCase(str) == "1") return true;
-        if (toLowerCase(str) == "0") return false;
-        throw  std::invalid_argument("Cannot parse string to boolean: " + str);
-    }
-    std::string trimConstructive(std::string& s) {
-        ltrim(s);
-        rtrim(s);
-        return s;
-    }
-    std::vector<std::string> split(std::string s) {
-        std::stringstream ss(s);
-        std::istream_iterator<std::string> begin(ss);
-        std::istream_iterator<std::string> end;
-        std::vector<std::string> tokens(begin, end);
-        return tokens;
-    }
-    std::string toLowerCase(const std::string& input) {
-        std::string result = input;
-        std::transform(result.begin(), result.end(), result.begin(), ::tolower);
-        return result;
     }
 
-    void printLogo(){
-        std::cout << "\033[1;33m";         
-        std::cout << " .--..--..--..--..--..--..--..--..--..--..--..--..--..--.\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ .. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( / /\                                                / /\)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ /\ \          ,--.             ,--.               / /\ \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/ /        ,--.'|  ,---,  ,--/  /|  ,---,,       \ \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /     ,--,:  : ,`--.' ,---,': / ' '  .'  :       \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( / /\  ,`--.'`|  ' |   :  :   : '/ / /  ;     \      / /\)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ /\ \ |   :  :  | :   |  |   '   , :  :       :    / /\ \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/ / :   |   \ | |   :  '   |  /  :  |   /\   \   \ \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /  |   : '  '; '   '  |   ;  ;  |  :  ' ;.   :   \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( / /\  '   ' ;.    |   |  :   '   \ |  |  ;/  \   \  / /\)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ /\ \ |   | | \   '   :  |   |    ''  :  | \  \ ,' / /\ \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/ / '   : |  ; .|   |  '   : |.  |  |  '  '--'   \ \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /  |   | '`--' '   :  |   | '_\.|  :  :          \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( / /\  '   : |     ;   |.''   : |   |  | ,'          / /\)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ /\ \ ;   |.'     '---'  ;   |,'   `--''           / /\ \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/ / '---'              '---'                     \ \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /                                                \/ /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( / /\.--..--..--..--..--..--..--..--..--..--..--..--./ /\)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(/ /\ \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \/\ \)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `' /)" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( `--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--')" << std::endl;
-        std::cout << "\033[0m"; 
+    void readFile() {
+        std::ifstream fileStream(FILE_NAME);
+        if (!fileStream.is_open()) {
+            printf("[!] Failed to open config file: %s\n", FILE_NAME.c_str());
+            return;
+        }
+
+        lines->clear();
+        std::string line;
+        while (std::getline(fileStream, line)) {
+            lines->push_back(line);
+        }
+        fileStream.close();
+        parseLines();
+    }
+
+    void parseLines() {
+        for (std::string line : *lines) {
+            util::trim(line);
+            if (line.empty() || line[0] == '#') {
+                continue;
+            }
+            std::vector<std::string> keyVal = util::split(line);
+            if (keyVal.size() == 2) {
+                std::string key = keyVal[0];
+                std::string val = keyVal[1];
+                loadVariables(key, val);
+            }
+        }
+        print();
+    }
+
+    bool toBool(std::string str) {
+        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+        std::istringstream is(str);
+        bool b;
+        is >> std::boolalpha >> b;
+        return b;
     }
 };
