@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream> // for std::stringstream
 
 struct Color {
     float red;
@@ -14,7 +15,7 @@ struct Color {
     }
 };
 
-namespace Map{
+namespace Map {
     bool map_mixtape;
 };
 
@@ -31,7 +32,7 @@ struct Level {
         name = mem::ReadString(OFF_REGION + OFF_LEVEL, 1024, "Level name");
         playable = !name.empty() && name != "mp_lobby";
         trainingArea = name == "mp_rr_canyonlands_staging_mu1";
-        if (gameModePtr > 0){
+        if (gameModePtr > 0) {
             mem::Read(gameModePtr, &gameMode, sizeof(gameMode));
             mapMixtape = mixtape[gameMode];
             Map::map_mixtape = mapMixtape;            
@@ -64,51 +65,6 @@ namespace util {
         out.precision(6);
         out << std::fixed << a_value;
         return out.str();
-    }
-
-    // trim from start (in place)
-    static inline void ltrim(std::string &s)
-    {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch)
-                                        { return !std::isspace(ch); }));
-    }
-
-    // trim from end (in place)
-    static inline void rtrim(std::string &s)
-    {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch)
-                             { return !std::isspace(ch); })
-                    .base(),
-                s.end());
-    }
-
-    // trim from both ends (in place)
-    static inline void trim(std::string &s)
-    {
-        ltrim(s);
-        rtrim(s);
-    }
-
-    std::vector<std::string> static inline split(std::string s)
-    {
-        std::stringstream ss(s);
-        std::istream_iterator<std::string> begin(ss);
-        std::istream_iterator<std::string> end;
-        std::vector<std::string> tokens(begin, end);
-        return tokens;
-    }
-
-    bool toBool(std::string str)
-    {
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-        std::istringstream is(str);
-        bool b;
-        is >> std::boolalpha >> b;
-        return b;
-    }
-
-    void clearScreen() {
-        printf("\e[H\e[2J\e[3J");
     }
 };
 
