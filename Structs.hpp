@@ -1,4 +1,3 @@
-#include <sstream> // for std::stringstream
 #pragma once
 
 struct Color {
@@ -18,22 +17,23 @@ struct Color {
 namespace Map{
     bool map_mixtape;
 };
+
 struct Level {
-	std::string name;
-	bool playable;
-	bool trainingArea;
+    std::string name;
+    bool playable;
+    bool trainingArea;
     bool mapMixtape;
     char gameMode[64] = {0};
     std::unordered_map<std::string, bool> mixtape = {{"control", true}, {"freedm", true}, {"arenas", true}};
 
-	void readFromMemory() {
-		uint64_t gameModePtr = mem::Read<uint64_t>(OFF_REGION + OFF_GAMEMODE + 0x50, "gameModePtr");
+    void readFromMemory() {
+        uint64_t gameModePtr = mem::Read<uint64_t>(OFF_REGION + OFF_GAMEMODE + 0x50, "gameModePtr");
         name = mem::ReadString(OFF_REGION + OFF_LEVEL, 1024, "Level name");
-		playable = !name.empty() && name != "mp_lobby";
-		trainingArea = name == "mp_rr_canyonlands_staging_mu1";
+        playable = !name.empty() && name != "mp_lobby";
+        trainingArea = name == "mp_rr_canyonlands_staging_mu1";
         if (gameModePtr > 0){
             mem::Read(gameModePtr, &gameMode, sizeof(gameMode));
-            mapMixtape=mixtape[gameMode];
+            mapMixtape = mixtape[gameMode];
             Map::map_mixtape = mapMixtape;            
         }
     }
@@ -65,6 +65,7 @@ namespace util {
         out << std::fixed << a_value;
         return out.str();
     }
+
     // trim from start (in place)
     static inline void ltrim(std::string &s)
     {
@@ -96,6 +97,7 @@ namespace util {
         std::vector<std::string> tokens(begin, end);
         return tokens;
     }
+
     bool toBool(std::string str)
     {
         std::transform(str.begin(), str.end(), str.begin(), ::tolower);
@@ -104,6 +106,7 @@ namespace util {
         is >> std::boolalpha >> b;
         return b;
     }
+
     void clearScreen() {
         printf("\e[H\e[2J\e[3J");
     }
@@ -138,30 +141,30 @@ enum class HitboxType {
 
 struct Matrix3x4 {
 public:
-	float matrix[3][4];
+    float matrix[3][4];
 
-	Vector3D GetPosition() const {
-		return Vector3D(matrix[0][3], matrix[1][3], matrix[2][3]);
-	}
+    Vector3D GetPosition() const {
+        return Vector3D(matrix[0][3], matrix[1][3], matrix[2][3]);
+    }
 
-	Vector3D GetPosition2() const {
-		return Vector3D(matrix[0][3], matrix[1][3], matrix[2][3]);
-	}
+    Vector3D GetPosition2() const {
+        return Vector3D(matrix[0][3], matrix[1][3], matrix[2][3]);
+    }
 };
 
 struct ViewMatrix {
 public:
-	float matrix[4][4];
+    float matrix[4][4];
 
-	Vector3D Transform(const Vector3D vector) const {
-		Vector3D transformed;
+    Vector3D Transform(const Vector3D vector) const {
+        Vector3D transformed;
 
-		transformed.x = vector.y * matrix[0][1] + vector.x * matrix[0][0] + vector.z * matrix[0][2] + matrix[0][3];
-	    transformed.y = vector.y * matrix[1][1] + vector.x * matrix[1][0] + vector.z * matrix[1][2] + matrix[1][3];
-	    transformed.z = vector.y * matrix[3][1] + vector.x * matrix[3][0] + vector.z * matrix[3][2] + matrix[3][3];
+        transformed.x = vector.y * matrix[0][1] + vector.x * matrix[0][0] + vector.z * matrix[0][2] + matrix[0][3];
+        transformed.y = vector.y * matrix[1][1] + vector.x * matrix[1][0] + vector.z * matrix[1][2] + matrix[1][3];
+        transformed.z = vector.y * matrix[3][1] + vector.x * matrix[3][0] + vector.z * matrix[3][2] + matrix[3][3];
 
-		return transformed;
-	}
+        return transformed;
+    }
 };
 
 namespace math
@@ -171,6 +174,7 @@ namespace math
         const float INCHES_TO_METER_RATE = 39.3701;
         return distance / INCHES_TO_METER_RATE;
     }
+
     double calculateDistance(float x1, float y1, float z1, float x2, float y2, float z2)
     {
         float dx = (x1 - x2);
@@ -192,7 +196,6 @@ namespace math
         float distance = sqrt(pow(dx, 2) + pow(dy, 2));
         return distance;
     }
-
 };
 
 struct GlowMode {
@@ -205,7 +208,6 @@ struct GlowMode {
         borderStyle(static_cast<std::byte>(borderStyle_val)),
         borderWidth(static_cast<std::byte>(borderWidth_val)),
         transparency(static_cast<std::byte>(transparency_val)) {}
-
 
     GlowMode(std::byte bodyStyle_val, std::byte borderStyle_val, std::byte borderWidth_val, std::byte transparency_val) :
         bodyStyle(bodyStyle_val),
@@ -240,5 +242,3 @@ struct GlowMode {
         return !(*this == other);
     }
 };
-
-
