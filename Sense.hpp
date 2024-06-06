@@ -11,32 +11,34 @@ struct Sense {
         this->lp = localPlayer;
         this->players = all_players;
     }
-    
-    void update(int counter){
+
+    void update(int counter) {
         if (!map->playable)
             return;
-        if(!cl->FEATURE_SENSE_ON)
+        if (!cl->FEATURE_SENSE_ON)
             return;
         for (std::size_t i = 0; i < players->size(); i++) {
-            Player *p = players->at(i);
+            Player* p = players->at(i);
             if (!p->isValid())
                 continue;
-            if (p->friendly) 
+            if (p->friendly)
                 continue;
-            
+
             double distance = math::calculateDistanceInMeters(
                 lp->localOrigin.x,
-                lp->localOrigin.y, 
+                lp->localOrigin.y,
                 lp->localOrigin.z,
                 p->localOrigin.x,
                 p->localOrigin.y,
                 p->localOrigin.z);
-                
-            if (!p->visible && !p->knocked && distance < cl->SENSE_MAXRANGE_OVERWALL) {
+            if (distance > cl->SENSE_MAXRANGE)
+                continue;
+
+            if (!p->visible && !p->knocked) {
                 p->setGlowEnable(1);
                 p->setGlowThroughWall(1);
                 p->setCustomGlow(255, 255, 0, true, false); // Yellow
-            } else if (p->visible && distance <  cl->SENSE_MAXRANGE) {
+            } else if (p->visible && distance < cl->SENSE_MAXRANGE) {
                 p->setGlowEnable(1);
                 p->setGlowThroughWall(1);
                 int healthShield = p->currentHealth + p->currentShields;
@@ -47,8 +49,8 @@ struct Sense {
             }
         }
     }
-    
-    void itemGlow(int counter){
+
+    void itemGlow(int counter) {
         if (!map->playable)
             return;
         if (!cl->FEATURE_ITEM_GLOW_ON)
@@ -58,6 +60,6 @@ struct Sense {
             const GlowMode oldGlowMode = mem::Read<GlowMode>(lp->highlightSettingsPtr + (HIGHLIGHT_TYPE_SIZE * highlightId) + 0, "Player oldGlowMode");
             if (newGlowMode != oldGlowMode)
                 mem::Write<GlowMode>(lp->highlightSettingsPtr + (HIGHLIGHT_TYPE_SIZE * highlightId) + 0, newGlowMode);
-        }         
+        }
     }
 };
