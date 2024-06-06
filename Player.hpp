@@ -1,5 +1,14 @@
 #pragma once
 
+#include "LocalPlayer.hpp"
+#include "Vectors.hpp"
+#include "Offsets.hpp"
+#include "QAngle.hpp"
+#include "GlowMode.hpp"
+#include "Structs.hpp"
+#include <cstdint>
+#include <string>
+
 struct Player {
     LocalPlayer* lp;
     ConfigLoader* cl;
@@ -36,6 +45,7 @@ struct Player {
     uintptr_t nameIndex;
     uint64_t spectators;
     uint64_t spctrBase;
+    int weaponIndex;
 
     Player(int in_index, LocalPlayer* in_localPlayer, ConfigLoader* in_cl) {
         this->index = in_index;
