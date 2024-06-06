@@ -1,6 +1,12 @@
 #pragma once
-struct Random
-{
+#include "ConfigLoader.hpp"
+#include "MyDisplay.hpp"
+#include "LocalPlayer.hpp"
+#include "Player.hpp"
+#include <vector>
+#include <thread>
+
+struct Random {
     ConfigLoader* cl;
     MyDisplay* display;
     Level* map;
@@ -15,10 +21,18 @@ struct Random
         lp = localPlayer;
         players = all_players;
     }
-    
 
-    void superGlide()
-    {
+    void bhop() {
+        if (cl->FEATURE_BHOP_ON && display->keyDown(cl->BHOP_KEY)) {
+            if (!lp->dead && !lp->knocked && lp->inJump) {
+                mem::Write<int>(OFF_REGION + OFF_IN_JUMP, 5);
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));  // Small delay to simulate human reaction
+                mem::Write<int>(OFF_REGION + OFF_IN_JUMP, 4);
+            }
+        }
+    }
+
+    void superGlide() {
         if(cl->FEATURE_SUPER_GLIDE_ON){
             static int sgState = 0;
             static int sgFrameTime = 0;
@@ -63,8 +77,7 @@ struct Random
             }
         }
     }
-    void quickTurn()
-    {
+    void quickTurn() {
         Vector2D localYawtoClamp = lp->viewAngles;
         localYawtoClamp.Clamp();
         float localYaw = localYawtoClamp.y;
@@ -92,8 +105,7 @@ struct Random
             } 
         }
     }
-    void printLevels()
-    {
+    void printLevels() {
         if(cl->FEATURE_PRINT_LEVELS_ON){
             if(display->keyDown(cl->FEATURE_PRINT_LEVELS_BUTTON)){
                 printf("[N]=[NAME]-[LEVEL]-[LEGEND]\n\n");
@@ -123,8 +135,7 @@ struct Random
             }            
         }        
     }
-    void spectatorView()
-    {
+    void spectatorView() {
         if(!map->playable) return;
         int spectatorcount = 0;   
         std::vector<std::string> spectatorlist;
@@ -151,8 +162,7 @@ struct Random
             }              
         }      
     }
-    void skinChanger()
-    {
+    void skinChanger() {
         if(!map->playable) return;
         if(lp->dead) return;
         float curTime = lp->worldtime;
@@ -206,9 +216,9 @@ struct Random
             mem::Write<int>(lp->weaponEntity + OFF_SKIN, skinID);
         }                    
     }
-    Vector3D oldPunch = { 0.f, 0.f, 0.f };
-     
+
     void runAll(int counter){
+        bhop();
         superGlide();
         quickTurn();
         mapRadar();
