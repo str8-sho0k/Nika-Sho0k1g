@@ -20,7 +20,7 @@ struct ConfigLoader {
     bool FEATURE_NORECOIL_ON = true;
     bool FEATURE_PRINT_LEVELS_ON = true;
     bool FEATURE_MAP_RADAR_ON = true;
-    bool FEATURE_BHOP_ON = false;
+    bool FEATURE_BHOP_ON = true;
     
     //noRecoil    
     int NORECOIL_PITCH_REDUCTION = 15;
@@ -59,7 +59,6 @@ struct ConfigLoader {
         FEATURE_ITEM_GLOW_ON = (key.compare("FEATURE_ITEM_GLOW_ON") != 0) ? FEATURE_ITEM_GLOW_ON : toBool(val);
         FEATURE_TRIGGERBOT_ON = (key.compare("FEATURE_TRIGGERBOT_ON") != 0) ? FEATURE_TRIGGERBOT_ON : toBool(val);
         FEATURE_NORECOIL_ON = (key.compare("FEATURE_NORECOIL_ON") != 0) ? FEATURE_NORECOIL_ON : toBool(val);
-        FEATURE_BHOP_ON = (key.compare("FEATURE_BHOP_ON") != 0) ? FEATURE_BHOP_ON : toBool(val);
         //noRecoil        
         NORECOIL_PITCH_REDUCTION = (key.compare("NORECOIL_PITCH_REDUCTION") != 0) ? NORECOIL_PITCH_REDUCTION : stoi(val);
         NORECOIL_YAW_REDUCTION = (key.compare("NORECOIL_YAW_REDUCTION") != 0) ? NORECOIL_YAW_REDUCTION : stoi(val);
@@ -69,6 +68,7 @@ struct ConfigLoader {
         TRIGGERBOT_PAUSE_BUTTON = (key.compare("TRIGGERBOT_PAUSE_BUTTON") != 0) ? TRIGGERBOT_PAUSE_BUTTON : trimConstructive(val);
         //sense
         SENSE_MAXRANGE = (key.compare("SENSE_MAXRANGE") != 0) ? SENSE_MAXRANGE : stoi(val);
+        SENSE_MAXRANGE_OVERWALL = (key.compare("SENSE_MAXRANGE_OVERWALL") != 0) ? SENSE_MAXRANGE_OVERWALL : stoi(val);
         //aimbot
         AIMBOT_ACTIVATED_BY_ATTACK = (key.compare("AIMBOT_ACTIVATED_BY_ATTACK") != 0) ? AIMBOT_ACTIVATED_BY_ATTACK : toBool(val);
         AIMBOT_ACTIVATED_BY_ADS = (key.compare("AIMBOT_ACTIVATED_BY_ADS") != 0) ? AIMBOT_ACTIVATED_BY_ADS : toBool(val);
@@ -94,7 +94,7 @@ struct ConfigLoader {
         FEATURE_MAP_RADAR_ON = (key.compare("FEATURE_MAP_RADAR_ON") != 0) ? FEATURE_MAP_RADAR_ON : toBool(val); 
         FEATURE_MAP_RADAR_BUTTON = (key.compare("FEATURE_MAP_RADAR_BUTTON") != 0) ? FEATURE_MAP_RADAR_BUTTON : trimConstructive(val);
         BHOP_KEY = (key.compare("BHOP_KEY") != 0) ? BHOP_KEY : trimConstructive(val);
-    }
+        }
 
     void print() {
         printf("\n==================== NIKA SETTINGS LOADED ==========================\n");
@@ -113,8 +113,6 @@ struct ConfigLoader {
         printf("FEATURE_PRINT_LEVELS_BUTTON\t\t\t\t%s\n", FEATURE_PRINT_LEVELS_BUTTON.c_str());
         printf("FEATURE_MAP_RADAR_ON\t\t\t\t\t%s\n", FEATURE_MAP_RADAR_ON ? "YES" : "NO");
         printf("FEATURE_MAP_RADAR_BUTTON\t\t\t\t%s\n", FEATURE_MAP_RADAR_BUTTON.c_str());
-        printf("FEATURE_BHOP_ON\t\t\t\t\t%s\n", FEATURE_BHOP_ON ? "YES" : "NO");
-        printf("BHOP_KEY\t\t\t\t\t%s\n", BHOP_KEY.c_str());
         printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
         //norecoil
         printf("NORECOIL_PITCH_REDUCTION\t\t\t\t%d\n", NORECOIL_PITCH_REDUCTION);
@@ -237,7 +235,7 @@ struct ConfigLoader {
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
         std::cout << R"(\ \/\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ \/ /)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"( \/ /`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\/ /)" << std::endl;
+        std::cout << R"(\ \/ /`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\/ /)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
         std::cout << R"( / /\                                                / /\)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
