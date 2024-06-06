@@ -1,13 +1,5 @@
 #pragma once
 
-#include "LocalPlayer.hpp"
-#include "Vectors.hpp"
-#include "Offsets.hpp"
-#include "QAngle.hpp"
-#include "Structs.hpp"
-#include <cstdint>
-#include <string>
-
 struct Player {
     LocalPlayer* lp;
     ConfigLoader* cl;
@@ -44,7 +36,6 @@ struct Player {
     uintptr_t nameIndex;
     uint64_t spectators;
     uint64_t spctrBase;
-    int weaponIndex;
 
     Player(int in_index, LocalPlayer* in_localPlayer, ConfigLoader* in_cl) {
         this->index = in_index;
@@ -247,7 +238,7 @@ struct Player {
     int GetPlayerLevel()
     {
         int m_xp = mem::Read<int>(base + OFF_XPLEVEL, "Player XP_Level"); //
-        if (m_xp < 0) return 0;
+        if (m_xp < 0) return 0
         if (m_xp < 100) return 1;
 
         int levels[] = { 2750, 6650, 11400, 17000, 23350, 30450, 38300, 46450, 55050,
@@ -368,3 +359,4 @@ struct Player {
         return BonePosition;
     }
 };
+
