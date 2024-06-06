@@ -1,5 +1,11 @@
 #pragma once
 
+#include "LocalPlayer.hpp"
+#include "Offsets.hpp"
+#include "Vectors.hpp"
+#include "Memory.hpp"
+#include "ConfigLoader.hpp"
+
 struct Player {
     LocalPlayer* lp;
     ConfigLoader* cl;
@@ -238,7 +244,7 @@ struct Player {
     int GetPlayerLevel()
     {
         int m_xp = mem::Read<int>(base + OFF_XPLEVEL, "Player XP_Level"); //
-        if (m_xp < 0) return 0
+        if (m_xp < 0) return 0;
         if (m_xp < 100) return 1;
 
         int levels[] = { 2750, 6650, 11400, 17000, 23350, 30450, 38300, 46450, 55050,
@@ -277,7 +283,7 @@ struct Player {
 
         auto IndexCache = mem::Read<uint16_t>(HitboxArray + 0x4, "Player IndexCache");
         auto HitboxIndex = ((uint16_t)(IndexCache & 0xFFFE) << (4 * (IndexCache & 1)));
-        auto BonePointer = HitboxIndex + HitboxArray + (static_cast<int>(HitBox) * 0x20);
+        auto BonePointer = HitboxIndex + HitboxArray + (static_cast<int>(Hitbox) * 0x20);
         if (!mem::IsValidPointer(BonePointer))
             return -1;
         return mem::Read<uint16_t>(BonePointer, "Player BonePointer");
@@ -310,7 +316,7 @@ struct Player {
         const Vector2D originA = lp->localOrigin.To2D().Add(shift);
         const Vector2D originB = localOrigin_predicted.To2D().Add(shift);
         const Vector2D diff = originB.Subtract(originA);
-        const double yawInRadians = std::atan2(diff.y, diff.x);
+        const double yawInRadians = std::.atan2(diff.y, diff.x);
         const float degrees = yawInRadians * (180.0f / M_PI);
         return degrees;
     }
@@ -359,4 +365,3 @@ struct Player {
         return BonePosition;
     }
 };
-
