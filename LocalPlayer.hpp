@@ -8,6 +8,7 @@ struct LocalPlayer {
     bool inZoom;
     bool inJump;
     bool grippingGrenade;
+    bool onGround;
     Vector3D localOrigin;
     Vector3D CameraPosition;
     Vector2D viewAngles;
@@ -35,6 +36,7 @@ struct LocalPlayer {
     float traversalProgress;
     float traversalReleaseTime;
     float onWall;
+    
 
     void reset() {
         base = 0;
@@ -60,6 +62,7 @@ struct LocalPlayer {
         traversalProgress = mem::Read<float>(base + OFFSET_TRAVERSAL_PROGRESS, "LocalPlayer traversalProgress"); 
         traversalReleaseTime = mem::Read<float>(base + OFFSET_TRAVERSAL_RELEASE_TIME, "LocalPlayer traversalReleaseTime"); 
         onWall = mem::Read<float>(base + OFFSET_WALL_RUN_START_TIME, "LocalPlayer wallRunStartTime");
+        onGround = mem::Read<bool>(base + OFF_ON_GROUND, "LocalPlayer onGround");
 
         currentHealth = mem::Read<int>(base + OFF_CURRENT_HEALTH, "LocalPlayer currentHealth");
         CameraPosition = mem::Read<Vector3D>(base + OFF_CAMERAORIGIN, "LocalPlayer CameraPosition");
