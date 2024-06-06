@@ -4,7 +4,6 @@
 #include "Vectors.hpp"
 #include "Offsets.hpp"
 #include "QAngle.hpp"
-#include "GlowMode.hpp"
 #include "Structs.hpp"
 #include <cstdint>
 #include <string>
