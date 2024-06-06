@@ -31,12 +31,12 @@ struct Sense {
                 p->localOrigin.x,
                 p->localOrigin.y,
                 p->localOrigin.z);
-
+                
             if (!p->visible && !p->knocked && distance < cl->SENSE_MAXRANGE_OVERWALL) {
                 p->setGlowEnable(1);
                 p->setGlowThroughWall(1);
-                p->setCustomGlow(5, true, false);  // Yellow glow for enemies behind walls
-            } else if (distance < cl->SENSE_MAXRANGE) {
+                p->setCustomGlow(255, 255, 0, true, false); // Yellow
+            } else if (p->visible && distance <  cl->SENSE_MAXRANGE) {
                 p->setGlowEnable(1);
                 p->setGlowThroughWall(1);
                 int healthShield = p->currentHealth + p->currentShields;
