@@ -64,7 +64,10 @@ struct Random{
     void bunnyHop() {
         if(cl->FEATURE_BHOP_ON){
             if(display->keyDown(cl->BHOP_KEY)){
-                if(lp->onGround){
+                // Check if the player is on the ground
+                int playerFlags = mem::Read<int>(lp->base + OFF_FLAGS, "PlayerFlags");
+                bool onGround = playerFlags & (1 << 0);
+                if(onGround){
                     mem::Write<int>(OFF_REGION + OFF_IN_JUMP + 0x8, 5);
                 }
             }
