@@ -20,7 +20,6 @@ struct ConfigLoader {
     bool FEATURE_NORECOIL_ON = true;
     bool FEATURE_PRINT_LEVELS_ON = true;
     bool FEATURE_MAP_RADAR_ON = true;
-    bool FEATURE_BHOP_ON = true;
     
     //noRecoil    
     int NORECOIL_PITCH_REDUCTION = 15;
@@ -68,7 +67,6 @@ struct ConfigLoader {
         TRIGGERBOT_PAUSE_BUTTON = (key.compare("TRIGGERBOT_PAUSE_BUTTON") != 0) ? TRIGGERBOT_PAUSE_BUTTON : trimConstructive(val);
         //sense
         SENSE_MAXRANGE = (key.compare("SENSE_MAXRANGE") != 0) ? SENSE_MAXRANGE : stoi(val);
-        SENSE_MAXRANGE_OVERWALL = (key.compare("SENSE_MAXRANGE_OVERWALL") != 0) ? SENSE_MAXRANGE_OVERWALL : stoi(val);
         //aimbot
         AIMBOT_ACTIVATED_BY_ATTACK = (key.compare("AIMBOT_ACTIVATED_BY_ATTACK") != 0) ? AIMBOT_ACTIVATED_BY_ATTACK : toBool(val);
         AIMBOT_ACTIVATED_BY_ADS = (key.compare("AIMBOT_ACTIVATED_BY_ADS") != 0) ? AIMBOT_ACTIVATED_BY_ADS : toBool(val);
@@ -94,7 +92,7 @@ struct ConfigLoader {
         FEATURE_MAP_RADAR_ON = (key.compare("FEATURE_MAP_RADAR_ON") != 0) ? FEATURE_MAP_RADAR_ON : toBool(val); 
         FEATURE_MAP_RADAR_BUTTON = (key.compare("FEATURE_MAP_RADAR_BUTTON") != 0) ? FEATURE_MAP_RADAR_BUTTON : trimConstructive(val);
         BHOP_KEY = (key.compare("BHOP_KEY") != 0) ? BHOP_KEY : trimConstructive(val);
-        }
+    }
 
     void print() {
         printf("\n==================== NIKA SETTINGS LOADED ==========================\n");
@@ -125,7 +123,6 @@ struct ConfigLoader {
         printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
         //sense
         printf("SENSE_MAXRANGE\t\t\t\t\t\t%d\n", SENSE_MAXRANGE);
-        printf("SENSE_MAXRANGE_OVERWALL\t\t\t\t\t%d\n", SENSE_MAXRANGE_OVERWALL);
         printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");        
         //aimbot
         printf("AIMBOT_ACTIVATED_BY_ATTACK\t\t\t\t%s\n", AIMBOT_ACTIVATED_BY_ATTACK ? "YES" : "NO");
@@ -141,10 +138,12 @@ struct ConfigLoader {
         printf("AIMBOT_ALLOW_TARGET_SWITCH\t\t\t\t%s\n", AIMBOT_ALLOW_TARGET_SWITCH ? "YES" : "NO");
         printf("AIMBOT_MAX_DISTANCE\t\t\t\t\t%d\n", AIMBOT_MAX_DISTANCE);
         printf("AIMBOT_MIN_DISTANCE\t\t\t\t\t%d\n", AIMBOT_MIN_DISTANCE);
-
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        //bhop
+        printf("BHOP_KEY\t\t\t\t\t\t%s\n", BHOP_KEY.c_str());
         printf("=====================================================================\n\n");
-        
     }
+
     void reloadFile() {
         if (loadFileIntoVector()) {
             parseLines();
@@ -152,6 +151,7 @@ struct ConfigLoader {
             printLogo();          
         }
     }
+
     void parseLines() {
         for (int i = 0; i < lines->size(); i++) {
             std::vector<std::string> lineParts = split(lines->at(i));
@@ -166,20 +166,24 @@ struct ConfigLoader {
             loadVariables(key, value);
         }
     }
+
     void trim(std::string& s) {
         ltrim(s);
         rtrim(s);
     }
+
     void ltrim(std::string& s) {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch)
             { return !std::isspace(ch); }));
     }
+
     void rtrim(std::string& s) {
         s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch)
-            { return !std::isspace(ch); })
+            { return ! std::isspace(ch); })
             .base(),
             s.end());
     }
+
     bool loadFileIntoVector() {
         struct stat result;
         if (stat(FILE_NAME.c_str(), &result) == 0) {
@@ -200,6 +204,7 @@ struct ConfigLoader {
         myFile.close();
         return true;
     }
+
     bool toBool(std::string str) {
         if (toLowerCase(str) == "y") return true;
         if (toLowerCase(str) == "n") return false;
@@ -207,13 +212,15 @@ struct ConfigLoader {
         if (toLowerCase(str) == "no") return false;
         if (toLowerCase(str) == "1") return true;
         if (toLowerCase(str) == "0") return false;
-        throw  std::invalid_argument("Cannot parse string to boolean: " + str);
+        throw std::invalid_argument("Cannot parse string to boolean: " + str);
     }
+
     std::string trimConstructive(std::string& s) {
         ltrim(s);
         rtrim(s);
         return s;
     }
+
     std::vector<std::string> split(std::string s) {
         std::stringstream ss(s);
         std::istream_iterator<std::string> begin(ss);
@@ -221,13 +228,14 @@ struct ConfigLoader {
         std::vector<std::string> tokens(begin, end);
         return tokens;
     }
+
     std::string toLowerCase(const std::string& input) {
         std::string result = input;
         std::transform(result.begin(), result.end(), result.begin(), ::tolower);
         return result;
     }
 
-    void printLogo(){
+    void printLogo() {
         std::cout << "\033[1;33m";         
         std::cout << " .--..--..--..--..--..--..--..--..--..--..--..--..--..--.\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
@@ -235,7 +243,7 @@ struct ConfigLoader {
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
         std::cout << R"(\ \/\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ \/ /)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
-        std::cout << R"(\ \/ /`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\/ /)" << std::endl;
+        std::cout << R"( \/ /`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\/ /)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
         std::cout << R"( / /\                                                / /\)" << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(69));
