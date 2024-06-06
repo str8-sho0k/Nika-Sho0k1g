@@ -12,19 +12,18 @@ struct Sense {
         this->players = all_players;
     }
     
-    void update(int counter) {
+    void update(int counter){
         if (!map->playable)
             return;
-        if (!cl->FEATURE_SENSE_ON)
+        if(!cl->FEATURE_SENSE_ON)
             return;
-        
         for (std::size_t i = 0; i < players->size(); i++) {
-            Player* p = players->at(i);
+            Player *p = players->at(i);
             if (!p->isValid())
                 continue;
-            if (p->friendly)
+            if (p->friendly) 
                 continue;
-
+            
             double distance = math::calculateDistanceInMeters(
                 lp->localOrigin.x,
                 lp->localOrigin.y, 
@@ -33,28 +32,23 @@ struct Sense {
                 p->localOrigin.y,
                 p->localOrigin.z);
 
-            if (distance > cl->SENSE_MAXRANGE) {
-                if (p->getGlowEnable() == 1 && p->getGlowThroughWall() == 1) {
-                    p->setGlowEnable(0);
-                    p->setGlowThroughWall(0);
-                }
-                continue;
-            }
-
-            if (!p->visible && !p->knocked) {
+            if (!p->visible && !p->knocked && distance < cl->SENSE_MAXRANGE_OVERWALL) {
                 p->setGlowEnable(1);
                 p->setGlowThroughWall(1);
-                p->setCustomGlow(2, false, true); // Set yellow glow for behind wall
-            } else {
+                p->setCustomGlow(5, true, false);  // Yellow glow for enemies behind walls
+            } else if (distance < cl->SENSE_MAXRANGE) {
                 p->setGlowEnable(1);
-                p->setGlowThroughWall(0);
+                p->setGlowThroughWall(1);
                 int healthShield = p->currentHealth + p->currentShields;
                 p->setCustomGlow(healthShield, true, false);
+            } else if (p->getGlowEnable() == 1 && p->getGlowThroughWall() == 1) {
+                p->setGlowEnable(0);
+                p->setGlowThroughWall(0);
             }
         }
     }
     
-    void itemGlow(int counter) {
+    void itemGlow(int counter){
         if (!map->playable)
             return;
         if (!cl->FEATURE_ITEM_GLOW_ON)
