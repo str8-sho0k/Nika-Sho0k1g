@@ -126,8 +126,7 @@ struct Random {
             }            
         }        
     }
-
-    void spectatorView() {
+    void spectatorView(){
         if(!map->playable && map->trainingArea) return;
         if(lp->dead) return;
         int spectatorcount = 0;   
@@ -156,8 +155,7 @@ struct Random {
             }              
         }      
     }
-
-    void skinChanger() {
+    void skinChanger(){
         if(!map->playable) return;
         if(lp->dead) return;
         float curTime = lp->worldtime;
@@ -211,8 +209,8 @@ struct Random {
             mem::Write<int>(lp->weaponEntity + OFF_SKIN, skinID);
         }                    
     }
-
-    void runAll(int counter) {
+     
+    void runAll(int counter){
         bunnyHop();
         superGlide();
         quickTurn();
