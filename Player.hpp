@@ -1,10 +1,13 @@
 #pragma once
-
 #include "LocalPlayer.hpp"
-#include "Offsets.hpp"
+#include "Level.hpp"
 #include "Vectors.hpp"
+#include "Offsets.hpp"
 #include "Memory.hpp"
-#include "ConfigLoader.hpp"
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <array>
 
 struct Player {
     LocalPlayer* lp;
@@ -31,6 +34,7 @@ struct Player {
     bool aimedAt;
     int lastTimeVisible;
     int lastTimeVisiblePrev;
+    float m_lastVisibleTime;
     bool visible;
     float distanceToLocalPlayer;
     float distance2DToLocalPlayer;
@@ -54,9 +58,13 @@ struct Player {
     }
 
     std::string getPlayerName() {
-        nameOffset = mem::Read<uintptr_t>(OFF_REGION + OFF_NAMELIST + ((plyrDataTable - 1) * 24), "Player nameOffset");
-        std::string playerName = mem::ReadString(nameOffset, 64, "Player playerName");
-        return playerName;
+        if (!isDummie()) {
+            uintptr_t nameOffset = mem::Read<uintptr_t>(OFF_REGION + OFF_NAMELIST + ((plyrDataTable - 1) * 24), "Player nameOffset");
+            std::string playerName = mem::ReadString(nameOffset, 64, "Player playerName");
+            return playerName;
+        } else {
+            return "Dummie Training Area";
+        }
     }
 
     std::string getPlayerModelName() {
@@ -65,6 +73,7 @@ struct Player {
         // Check for different player names
         if (modelName.find("dummie") != std::string::npos) modelName = "DUMMIE";
         else if (modelName.find("ash") != std::string::npos) modelName = "ASH";
+        else if (modelName.find("alter") != std::string::npos) modelName = "ALTER";
         else if (modelName.find("ballistic") != std::string::npos) modelName = "BALLISTIC";
         else if (modelName.find("bangalore") != std::string::npos) modelName = "BANGALORE";
         else if (modelName.find("bloodhound") != std::string::npos) modelName = "BLOODHOUND";
@@ -96,34 +105,33 @@ struct Player {
         return modelName;
     }
 
-    void readFromMemory() {
+    void readFromMemory(Level* map) {
         base = mem::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((index + 1) << 5), "Player base");
         if (base == 0) return;
-        spctrBase = mem::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((spctrIndex & 0xFFFF) << 5), "Spectator Base");
-        plyrDataTable = mem::Read<int>(base + OFF_NAMEINDEX, "Player Data Table");
-        spectators = mem::Read<uint64_t>(OFF_REGION + OFF_SPECTATOR_LIST, "spectators");
-        spctrIndex = mem::Read<int>(spectators + plyrDataTable * 8 + 0x964, "Spectator Index");
-        name = mem::ReadString(base + OFF_NAME, 1024, "Player name");
-        teamNumber = mem::Read<int>(base + OFF_TEAM_NUMBER, "Player teamNumber");
-        currentHealth = mem::Read<int>(base + OFF_CURRENT_HEALTH, "Player currentHealth");
-        currentShields = mem::Read<int>(base + OFF_CURRENT_SHIELDS, "Player currentShields");
-        if (!isPlayer() && !isDummie()) { reset(); return; }
-        dead = (isDummie()) ? false : mem::Read<short>(base + OFF_LIFE_STATE, "Player dead") > 0;
-        knocked = (isDummie()) ? false : mem::Read<short>(base + OFF_BLEEDOUT_STATE, "Player knocked") > 0;
-        localOrigin = mem::Read<Vector3D>(base + OFF_LOCAL_ORIGIN, "Player localOrigin");
-        AbsoluteVelocity = mem::Read<Vector3D>(base + OFF_ABSVELOCITY, "Player AbsoluteVelocity");
-        Vector3D localOrigin_diff = localOrigin.Subtract(localOrigin_prev).Normalize().Multiply(20);
-        localOrigin_predicted = localOrigin.Add(localOrigin_diff);
-        localOrigin_prev = Vector3D(localOrigin.x, localOrigin.y, localOrigin.z);
-
-        lastTimeAimedAt = mem::Read<int>(base + OFF_LAST_AIMEDAT_TIME, "Player lastTimeAimedAt");
-        aimedAt = lastTimeAimedAtPrev < lastTimeAimedAt;
-        lastTimeAimedAtPrev = lastTimeAimedAt;
-
-        lastTimeVisible = mem::Read<int>(base + OFF_LAST_VISIBLE_TIME, "Player lastTimeVisible");
-        visible = isDummie() || aimedAt || lastTimeVisiblePrev < lastTimeVisible; //
-        lastTimeVisiblePrev = lastTimeVisible;
-
+        if (map->playable || map->trainingArea && local) {
+            spctrBase = mem::Read<uint64_t>(OFF_REGION + OFF_ENTITY_LIST + ((spctrIndex & 0xFFFF) << 5), "Spectator Base");
+            plyrDataTable = mem::Read<int>(base + OFF_NAMEINDEX, "Player Data Table");
+            spectators = mem::Read<uint64_t>(OFF_REGION + OFF_SPECTATOR_LIST, "spectators");
+            spctrIndex = mem::Read<int>(spectators + plyrDataTable * 8 + 0x964, "Spectator Index");
+            name = mem::ReadString(base + OFF_NAME, 1024, "Player name");
+            teamNumber = mem::Read<int>(base + OFF_TEAM_NUMBER, "Player teamNumber");
+            currentHealth = mem::Read<int>(base + OFF_CURRENT_HEALTH, "Player currentHealth");
+            currentShields = mem::Read<int>(base + OFF_CURRENT_SHIELDS, "Player currentShields");
+            if (!isPlayer() && !isDummie()) { reset(); return; }
+            dead = (isDummie()) ? false : mem::Read<short>(base + OFF_LIFE_STATE, "Player dead") > 0;
+            knocked = (isDummie()) ? false : mem::Read<short>(base + OFF_BLEEDOUT_STATE, "Player knocked") > 0;
+            localOrigin = mem::Read<Vector3D>(base + OFF_LOCAL_ORIGIN, "Player localOrigin");
+            AbsoluteVelocity = mem::Read<Vector3D>(base + OFF_ABSVELOCITY, "Player AbsoluteVelocity");
+            Vector3D localOrigin_diff = localOrigin.Subtract(localOrigin_prev).Normalize().Multiply(20);
+            localOrigin_predicted = localOrigin.Add(localOrigin_diff);
+            localOrigin_prev = Vector3D(localOrigin.x, localOrigin.y, localOrigin.z);
+            lastTimeVisible = mem::Read<int>(base + OFF_LAST_VISIBLE_TIME, "Player lastTimeVisible");
+            lastTimeAimedAt = mem::Read<int>(base + OFF_LAST_AIMEDAT_TIME, "Player lastTimeAimedAt");
+            aimedAt = lastTimeAimedAtPrev < lastTimeAimedAt;
+            lastTimeAimedAtPrev = lastTimeAimedAt;
+            visible = isDummie() || isVisible(); //
+            lastTimeVisiblePrev = lastTimeVisible;
+        }
         if (lp->isValid()) {
             local = lp->base == base;
             friendly = SameTeam();
@@ -138,20 +146,17 @@ struct Player {
         }
     }
 
-    void setGlowThroughWall(int glowThroughWall)
-    {
+    void setGlowThroughWall(int glowThroughWall) {
         long ptrLong = base + OFF_GLOW_THROUGH_WALL;
         mem::Write<int>(ptrLong, glowThroughWall);
     }
 
-    void setGlowEnable(int glowEnable)
-    {
+    void setGlowEnable(int glowEnable) {
         long ptrLong = base + OFF_GLOW_HIGHLIGHT_ID;
         mem::Write<int>(ptrLong, glowEnable);
     }
 
-    void setCustomGlow(int health, bool isVisible, bool isSameTeam)
-    {  
+    void setCustomGlow(int health, bool isVisible, bool isSameTeam, bool behindWall = false) {
         static const int contextId = 0; // Same as glow enable
         long basePointer = base;
         int settingIndex = 50;
@@ -162,10 +167,11 @@ struct Player {
             64   // (EntityVisible << 6) | State & 0x3F | (AfterPostProcess << 7)
         };
         std::array<float, 3> glowColorRGB = { 0, 0, 0 };
-        
-        if (!isVisible) {
+        if (behindWall) {
+            glowColorRGB = { 1, 1, 0 }; // yellow color for enemies behind walls
+        } else if (!isVisible) {
             settingIndex = 65;
-            glowColorRGB = { 1.0, 1.0, 0.0 }; // yellow color for enemies behind walls
+            glowColorRGB = { 0.5, 0.5, 0.5 }; // grey
         } else if (health >= 205) {
             settingIndex = 66;
             glowColorRGB = { 1, 0, 0 }; // red shield
@@ -182,25 +188,34 @@ struct Player {
             settingIndex = 70;
             glowColorRGB = { 0, 1, 0 }; // low health enemies // green color
         }
-        
+
         if (!isSameTeam) {
             mem::Write<unsigned char>(basePointer + OFF_GLOW_HIGHLIGHT_ID + contextId, settingIndex);
             mem::Write<typeof(highlightFunctionBits)>(
                 lp->highlightSettingsPtr + HIGHLIGHT_TYPE_SIZE * settingIndex + 0, highlightFunctionBits);
             mem::Write<typeof(glowColorRGB)>(
                 lp->highlightSettingsPtr + HIGHLIGHT_TYPE_SIZE * settingIndex + 4, glowColorRGB);
-            mem::Write<int>(basePointer + OFF_GLOW_FIX, 0);
-        }   
+            mem::Write<int>(basePointer + OFF_GLOW_FIX, 2);
+        }
     }
 
-    bool SameTeam()
-    {
-        if (Map::map_mixtape && lp->squadNumber == -1)
-        {
+    float getLastVisibleTime() {
+        long ptrLong = base + OFF_LAST_VISIBLE_TIME;
+        float result = mem::Read<float>(ptrLong, "getLastVisibleTime");
+        return result;
+    }
+
+    bool isVisible() {
+        const float lastVisibleTime = getLastVisibleTime();
+        const bool isVisible = lastVisibleTime > m_lastVisibleTime;
+        m_lastVisibleTime = lastVisibleTime;
+        return isVisible;
+    }
+
+    bool SameTeam() {
+        if (Map::map_mixtape && lp->squadNumber == -1) {
             return (teamNumber & 1) == (lp->teamNumber & 1);
-        }
-        else
-        {
+        } else {
             return teamNumber == lp->teamNumber;
         }
     }
@@ -225,45 +240,40 @@ struct Player {
         return teamNumber == 97;
     }
 
-    int getGlowThroughWall()
-    {
+    int getGlowThroughWall() {
         int ptrInt = mem::Read<int>(base + OFF_GLOW_THROUGH_WALL, "Player GlowThroughWall");
         if (!mem::IsValidPointer(ptrInt))
             return -1;
         return ptrInt;
     }
 
-    int getGlowEnable()
-    {
+    int getGlowEnable() {
         int ptrInt = mem::Read<int>(base + OFF_GLOW_HIGHLIGHT_ID, "Player GlowEnable");
         if (!mem::IsValidPointer(ptrInt))
             return -1;
         return ptrInt;
     }
 
-    int GetPlayerLevel()
-    {
+    int GetPlayerLevel() {
         int m_xp = mem::Read<int>(base + OFF_XPLEVEL, "Player XP_Level"); //
         if (m_xp < 0) return 0;
         if (m_xp < 100) return 1;
 
         int levels[] = { 2750, 6650, 11400, 17000, 23350, 30450, 38300, 46450, 55050,
-        64100, 73600, 83550, 93950, 104800, 116100, 127850, 140050, 152400, 164900, 
-        177550, 190350, 203300, 216400, 229650, 243050, 256600, 270300, 284150, 298150, 
-        312300, 326600, 341050, 355650, 370400, 385300, 400350, 415550, 430900, 446400, 
-        462050, 477850, 493800, 509900, 526150, 542550, 559100, 575800, 592650, 609650, 
-        626800, 644100, 661550, 679150, 696900, 714800 };
+            64100, 73600, 83550, 93950, 104800, 116100, 127850, 140050, 152400, 164900,
+            177550, 190350, 203300, 216400, 229650, 243050, 256600, 270300, 284150, 298150,
+            312300, 326600, 341050, 355650, 370400, 385300, 400350, 415550, 430900, 446400,
+            462050, 477850, 493800, 509900, 526150, 542550, 559100, 575800, 592650, 609650, 626800,
+            644100, 661550, 679150, 696900, 714800 };
 
         int level = 56;
         int arraySize = sizeof(levels) / sizeof(levels[0]);
 
-        for (int i = 0; i < arraySize; i++)
-        {
-            if (m_xp < levels[i])
-            {
+        for (int i = 0; i < arraySize; i++) {
+            if (m_xp < levels[i]) {
                 return i + 1;
             }
-        }   
+        }
         return level + ((m_xp - levels[arraySize - 1] + 1) / 18000);
     }
 
@@ -277,13 +287,13 @@ struct Player {
             return -1;
 
         auto HitboxCache = mem::Read<uint16_t>(StudioHDR + 0x34, "Player HitboxCache");
-        auto HitboxArray = StudioHDR + ((uint16_t)(HitboxCache & 0xFFFE) << (4 * (HitboxCache & 1))); 
+        auto HitboxArray = StudioHDR + ((uint16_t)(HitboxCache & 0xFFFE) << (4 * (HitboxCache & 1)));
         if (!mem::IsValidPointer(HitboxArray + 0x4))
             return -1;
 
         auto IndexCache = mem::Read<uint16_t>(HitboxArray + 0x4, "Player IndexCache");
         auto HitboxIndex = ((uint16_t)(IndexCache & 0xFFFE) << (4 * (IndexCache & 1)));
-        auto BonePointer = HitboxIndex + HitboxArray + (static_cast<int>(Hitbox) * 0x20);
+        auto BonePointer = HitboxIndex + HitboxArray + (static_cast<int>(HitBox) * 0x20);
         if (!mem::IsValidPointer(BonePointer))
             return -1;
         return mem::Read<uint16_t>(BonePointer, "Player BonePointer");
@@ -316,7 +326,7 @@ struct Player {
         const Vector2D originA = lp->localOrigin.To2D().Add(shift);
         const Vector2D originB = localOrigin_predicted.To2D().Add(shift);
         const Vector2D diff = originB.Subtract(originA);
-        const double yawInRadians = std::.atan2(diff.y, diff.x);
+        const double yawInRadians = std::atan2(diff.y, diff.x);
         const float degrees = yawInRadians * (180.0f / M_PI);
         return degrees;
     }
